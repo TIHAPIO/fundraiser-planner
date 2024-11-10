@@ -28,6 +28,8 @@ import ViewWeekIcon from '@mui/icons-material/ViewWeek';
 import AddIcon from '@mui/icons-material/Add';
 import PeopleIcon from '@mui/icons-material/People';
 import CampaignIcon from '@mui/icons-material/Campaign';
+import AdminIcon from '@mui/icons-material/AdminPanelSettings';
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 
 import theme from './theme';
 import ErrorBoundary from './ErrorBoundary';
@@ -38,6 +40,7 @@ const CalendarView = React.lazy(() => import('./components/CalendarView'));
 const WeekEditDialog = React.lazy(() => import('./components/WeekEditDialog'));
 const CampaignDialog = React.lazy(() => import('./components/CampaignDialog'));
 const FundraiserManagement = React.lazy(() => import('./components/FundraiserManagement'));
+const AdminChangeRequests = React.lazy(() => import('./components/AdminChangeRequests'));
 
 // Loading component
 const LoadingFallback = () => (
@@ -46,14 +49,6 @@ const LoadingFallback = () => (
   </Backdrop>
 );
 
-// Error logging function
-const logError = (error, info = {}) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.error('Error:', error);
-    console.error('Additional Info:', info);
-  }
-};
-
 function App() {
   const muiTheme = useTheme();
   const [loading, setLoading] = useState(false);
@@ -61,7 +56,7 @@ function App() {
   const [fundraisers, setFundraisers] = useState(mockFundraisers);
   const [editingWeek, setEditingWeek] = useState(null);
   const [isAddingCampaign, setIsAddingCampaign] = useState(false);
-  const [selectedWorkspace, setSelectedWorkspace] = useState('Team Workspace');
+  const [selectedWorkspace, setSelectedWorkspace] = useState('Team Captain');
   const [isFundraiserDialogOpen, setIsFundraiserDialogOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [error, setError] = useState(null);
@@ -81,7 +76,8 @@ function App() {
   }, []);
 
   const handleError = useCallback((error, info = {}) => {
-    logError(error, info);
+    console.error('Error:', error);
+    console.error('Additional Info:', info);
     setError({
       message: error.message || 'Ein Fehler ist aufgetreten',
       severity: 'error'
@@ -170,8 +166,18 @@ function App() {
                     },
                   }}
                 >
-                  <MenuItem value="Team Workspace">Team Workspace</MenuItem>
-                  <MenuItem value="Personal Workspace">Personal Workspace</MenuItem>
+                  <MenuItem value="Team Captain">
+                    <ListItemIcon>
+                      <SupervisorAccountIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Team Captain</ListItemText>
+                  </MenuItem>
+                  <MenuItem value="Admin">
+                    <ListItemIcon>
+                      <AdminIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Admin</ListItemText>
+                  </MenuItem>
                 </Select>
                 <Box sx={{ flexGrow: 1 }} />
                 <IconButton size="large" sx={{ color: 'text.secondary' }}>
@@ -193,30 +199,36 @@ function App() {
             >
               <Container maxWidth="xl">
                 <Suspense fallback={<LoadingFallback />}>
-                  <CalendarView 
-                    campaigns={campaigns}
-                    fundraisers={fundraisers}
-                    onEditWeek={handleEditWeek}
-                    onError={handleError}
-                  />
+                  {selectedWorkspace === 'Admin' ? (
+                    <AdminChangeRequests />
+                  ) : (
+                    <CalendarView 
+                      campaigns={campaigns}
+                      fundraisers={fundraisers}
+                      onEditWeek={handleEditWeek}
+                      onError={handleError}
+                    />
+                  )}
                 </Suspense>
               </Container>
             </Box>
 
-            {/* Floating Action Button */}
-            <Fab
-              color="primary"
-              aria-label="add"
-              sx={{
-                position: 'fixed',
-                bottom: 32,
-                right: 32,
-                boxShadow: muiTheme.shadows[3],
-              }}
-              onClick={handleMenuClick}
-            >
-              <AddIcon />
-            </Fab>
+            {/* Floating Action Button - Only show in Team Captain Workspace */}
+            {selectedWorkspace === 'Team Captain' && (
+              <Fab
+                color="primary"
+                aria-label="add"
+                sx={{
+                  position: 'fixed',
+                  bottom: 32,
+                  right: 32,
+                  boxShadow: muiTheme.shadows[3],
+                }}
+                onClick={handleMenuClick}
+              >
+                <AddIcon />
+              </Fab>
+            )}
 
             {/* Add Menu */}
             <Menu
