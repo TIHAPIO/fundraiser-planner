@@ -65,27 +65,34 @@ const AdminChangeRequests = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h5" sx={{ mb: 3 }}>
+    <Box>
+      <Typography variant="h4" sx={{ mb: 4 }}>
         Ausstehende Änderungsanfragen
       </Typography>
 
       {pendingRequests.length === 0 ? (
-        <Paper sx={{ p: 2, textAlign: 'center' }}>
+        <Paper 
+          sx={{ 
+            p: 3, 
+            textAlign: 'center',
+            bgcolor: 'background.paper',
+          }}
+        >
           <Typography color="text.secondary">
             Keine ausstehenden Änderungsanfragen
           </Typography>
         </Paper>
       ) : (
-        <Grid container spacing={2}>
+        <Grid container spacing={3}>
           {pendingRequests.map((request) => (
             <Grid item xs={12} key={request.id}>
               <Paper 
                 sx={{ 
-                  p: 2,
+                  p: 3,
                   '&:hover': {
-                    bgcolor: 'action.hover',
+                    bgcolor: 'rgba(255, 255, 255, 0.05)',
                   },
+                  transition: 'background-color 0.2s',
                 }}
               >
                 <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
@@ -94,8 +101,10 @@ const AdminChangeRequests = () => {
                       <Chip
                         icon={getRequestIcon(request.type)}
                         label={getRequestTypeLabel(request.type)}
-                        color="primary"
-                        variant="outlined"
+                        sx={{
+                          bgcolor: 'rgba(255, 255, 255, 0.08)',
+                          '& .MuiChip-icon': { color: 'inherit' },
+                        }}
                       />
                       <Typography variant="subtitle1">
                         Kampagne: {request.campaignId}
@@ -114,7 +123,7 @@ const AdminChangeRequests = () => {
                       color="success"
                       startIcon={<CheckCircleIcon />}
                       onClick={() => handleApprove(request)}
-                      fullWidth
+                      sx={{ mb: 1 }}
                     >
                       Genehmigen
                     </Button>
@@ -123,7 +132,6 @@ const AdminChangeRequests = () => {
                       color="error"
                       startIcon={<CancelIcon />}
                       onClick={() => handleReject(request)}
-                      fullWidth
                     >
                       Ablehnen
                     </Button>
