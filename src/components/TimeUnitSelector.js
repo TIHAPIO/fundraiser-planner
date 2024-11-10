@@ -6,7 +6,13 @@ import {
   Box,
   useTheme,
 } from '@mui/material';
-import { timeUnits } from '../data/mockData';
+
+const timeUnits = [
+  { value: 'year', label: 'Jahr' },
+  { value: 'quarter', label: 'Quartal' },
+  { value: 'month', label: 'Monat' },
+  { value: 'week', label: 'Woche' },
+];
 
 const TimeUnitSelector = ({ value, onChange }) => {
   const theme = useTheme();
@@ -50,7 +56,7 @@ const TimeUnitSelector = ({ value, onChange }) => {
 };
 
 TimeUnitSelector.propTypes = {
-  value: PropTypes.oneOf(['week', 'month', 'year']).isRequired,
+  value: PropTypes.oneOf(['year', 'quarter', 'month', 'week']).isRequired,
   onChange: PropTypes.func.isRequired,
 };
 

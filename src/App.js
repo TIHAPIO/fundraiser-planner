@@ -39,6 +39,7 @@ import KeyboardIcon from '@mui/icons-material/Keyboard';
 
 import getTheme from './theme';
 import ErrorBoundary from './ErrorBoundary';
+import { mockCampaigns } from './data/mockData';
 
 // Lazy load components
 const CalendarView = React.lazy(() => import('./components/CalendarView'));
@@ -82,22 +83,6 @@ const ShortcutsDialog = ({ open, onClose }) => (
   </Dialog>
 );
 
-// Onboarding tour steps
-const TOUR_STEPS = [
-  {
-    target: '.dashboard-nav',
-    content: 'Hier finden Sie die Hauptnavigation für Dashboard und Admin-Bereich.',
-  },
-  {
-    target: '.search-bar',
-    content: 'Nutzen Sie die Suchfunktion, um schnell Kampagnen zu finden.',
-  },
-  {
-    target: '.timeline-view',
-    content: 'Die Timeline-Ansicht zeigt Ihre Kampagnen im Zeitverlauf.',
-  },
-];
-
 function App() {
   const [selectedWorkspace, setSelectedWorkspace] = useState('Team Captain');
   const [error, setError] = useState(null);
@@ -108,12 +93,24 @@ function App() {
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
-  const [showTour, setShowTour] = useState(false);
+  const [filteredCampaigns, setFilteredCampaigns] = useState(mockCampaigns);
 
   // Save theme preference
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
   }, [darkMode]);
+
+  // Filter campaigns based on search query
+  useEffect(() => {
+    if (searchQuery) {
+      const filtered = mockCampaigns.filter(campaign =>
+        campaign.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredCampaigns(filtered);
+    } else {
+      setFilteredCampaigns(mockCampaigns);
+    }
+  }, [searchQuery]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -164,11 +161,6 @@ function App() {
 
   const handleSearch = (event) => {
     setSearchQuery(event.target.value);
-  };
-
-  const handleTourComplete = () => {
-    localStorage.setItem('tourCompleted', 'true');
-    setShowTour(false);
   };
 
   const menuItems = [
@@ -240,7 +232,7 @@ function App() {
                 </IconButton>
               </Box>
 
-              <List className="dashboard-nav">
+              <List>
                 {menuItems.map((item) => (
                   <ListItem key={item.text} disablePadding>
                     <ListItemButton
@@ -314,7 +306,7 @@ function App() {
 
                 <ListItem disablePadding>
                   <ListItemButton
-                    onClick={() => setShowTour(true)}
+                    onClick={() => {}}
                     sx={{
                       minHeight: 48,
                       justifyContent: drawerOpen ? 'initial' : 'center',
@@ -341,6 +333,10 @@ function App() {
               component="main"
               sx={{
                 flexGrow: 1,
+                height: '100vh',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
                 width: { sm: `calc(100% - ${drawerOpen ? DRAWER_WIDTH : theme.spacing(7)}px)` },
                 ml: { sm: `${drawerOpen ? DRAWER_WIDTH : theme.spacing(7)}px` },
                 mt: { xs: '48px', sm: 0 },
@@ -358,6 +354,7 @@ function App() {
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
+                  overflow: 'hidden',
                 }}
               >
                 {/* Search Bar */}
@@ -385,17 +382,22 @@ function App() {
                   />
                 </Box>
 
-                <Box sx={{ flexGrow: 1, minHeight: 0 }}>
+                <Box sx={{ 
+                  flexGrow: 1, 
+                  overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}>
                   <ErrorBoundary>
                     <Suspense fallback={<LoadingFallback />}>
                       {selectedWorkspace === 'Admin' ? (
                         <AdminChangeRequests />
                       ) : (
                         <CalendarView 
+                          campaigns={filteredCampaigns}
                           onError={handleError}
                           drawerOpen={drawerOpen}
                           searchQuery={searchQuery}
-                          className="timeline-view"
                         />
                       )}
                     </Suspense>
@@ -426,40 +428,6 @@ function App() {
                 {error?.message}
               </Alert>
             </Snackbar>
-
-            {/* Onboarding Tour */}
-            {showTour && (
-              <Dialog
-                open={true}
-                onClose={handleTourComplete}
-                maxWidth="sm"
-                fullWidth
-              >
-                <DialogTitle>Willkommen bei Fundr Studio!</DialogTitle>
-                <DialogContent>
-                  <DialogContentText>
-                    Lassen Sie uns einen kurzen Rundgang durch die wichtigsten Funktionen machen.
-                  </DialogContentText>
-                  <Box sx={{ mt: 2 }}>
-                    {TOUR_STEPS.map((step, index) => (
-                      <Box key={index} sx={{ mb: 2 }}>
-                        <Typography variant="subtitle2" gutterBottom>
-                          {index + 1}. {step.target.replace('.', '')}
-                        </Typography>
-                        <Typography variant="body2">
-                          {step.content}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Box>
-                </DialogContent>
-                <Box sx={{ p: 2 }}>
-                  <Button onClick={handleTourComplete} variant="contained">
-                    Tour beenden
-                  </Button>
-                </Box>
-              </Dialog>
-            )}
           </Box>
         </ErrorBoundary>
       </LocalizationProvider>
