@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
   Box,
@@ -23,6 +23,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 const CalendarView = ({ campaigns = [], onError }) => {
   const theme = useTheme();
+  const timelineRef = useRef(null);
   const [timeUnit, setTimeUnit] = useState('year');
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -38,6 +39,13 @@ const CalendarView = ({ campaigns = [], onError }) => {
     const days = Math.floor((now - start) / (24 * 60 * 60 * 1000));
     return Math.ceil(days / 7);
   });
+
+  // Reset scroll position when dialog closes
+  useEffect(() => {
+    if (!detailsOpen && timelineRef.current) {
+      timelineRef.current.scrollLeft = 0;
+    }
+  }, [detailsOpen]);
 
   // Sort campaigns by start date
   const sortedCampaigns = [...campaigns].sort((a, b) => 
@@ -326,7 +334,7 @@ const CalendarView = ({ campaigns = [], onError }) => {
         ml: 3,
         overflow: 'hidden',
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography 
               variant="h4" 
@@ -378,6 +386,7 @@ const CalendarView = ({ campaigns = [], onError }) => {
 
           {/* Timeline Content */}
           <Box 
+            ref={timelineRef}
             sx={{ 
               flex: 1,
               position: 'relative',
@@ -395,6 +404,7 @@ const CalendarView = ({ campaigns = [], onError }) => {
               minWidth: '100%',
               width: 'fit-content',
               px: 4,
+              pt: 2,
             }}>
               {/* Grid Lines */}
               <Box 
@@ -449,7 +459,7 @@ const CalendarView = ({ campaigns = [], onError }) => {
                           sx={{
                             position: 'absolute',
                             ...position,
-                            top: (index + 1) * 44,
+                            top: index * 44,
                             height: 36,
                             display: 'flex',
                             alignItems: 'center',
