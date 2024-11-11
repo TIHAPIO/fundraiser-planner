@@ -21,7 +21,10 @@ import WarningIcon from '@mui/icons-material/Warning';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-const CalendarView = ({ campaigns = [], onError }) => {
+const CAMPAIGN_SIDEBAR_WIDTH = 280;
+const DRAWER_WIDTH = 240;
+
+const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
   const theme = useTheme();
   const timelineRef = useRef(null);
   const [timeUnit, setTimeUnit] = useState('year');
@@ -328,16 +331,24 @@ const CalendarView = ({ campaigns = [], onError }) => {
       display: 'flex', 
       height: '100%',
       position: 'relative',
+      minHeight: 0,
     }}>
       <Box sx={{ 
+        width: CAMPAIGN_SIDEBAR_WIDTH,
         position: 'fixed',
-        left: 0,
         top: 0,
         bottom: 0,
-        width: 280,
-        zIndex: 2,
+        left: drawerOpen ? DRAWER_WIDTH : theme.spacing(7),
         bgcolor: theme.palette.background.paper,
         borderRight: `1px solid ${theme.palette.divider}`,
+        transition: theme.transitions.create('left', {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+        zIndex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'auto',
       }}>
         <CampaignSidebar 
           campaigns={sortedCampaigns}
@@ -349,9 +360,15 @@ const CalendarView = ({ campaigns = [], onError }) => {
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        ml: '280px',
-        pl: 3,
+        marginLeft: `calc(${CAMPAIGN_SIDEBAR_WIDTH}px + ${drawerOpen ? DRAWER_WIDTH : theme.spacing(7)}px)`,
+        paddingRight: 3,
+        paddingLeft: 3,
+        minWidth: 0,
         overflow: 'hidden',
+        transition: theme.transitions.create('margin-left', {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
       }}>
         <Box sx={{ 
           display: 'flex', 
@@ -587,6 +604,7 @@ CalendarView.propTypes = {
     })
   ),
   onError: PropTypes.func,
+  drawerOpen: PropTypes.bool,
 };
 
 export default CalendarView;
