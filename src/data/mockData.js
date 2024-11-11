@@ -56,37 +56,159 @@ export const mockVehicles = [
 
 // Mock Campaigns
 export const mockCampaigns = [
+  // 2023 Campaigns
   {
     id: 1,
-    name: "Sommerkampagne 2024",
-    startDate: "2024-06-01",
-    endDate: "2024-08-31",
-    capacity: 8,
-    registeredFundraisers: 6,
+    name: "Frühjahrskampagne Berlin-Mitte",
+    startDate: "2023-03-05",
+    endDate: "2023-04-30",
+    capacity: 10,
+    registeredFundraisers: 8,
     accommodation: 1,
     vehicle: 1,
     notes: "Fokus auf Innenstadtbereiche",
     fundraisers: [
-      { id: 1, status: 'registered', lastStatusChange: '2024-01-15T10:00:00Z' },
-      { id: 2, status: 'confirmed', lastStatusChange: '2024-01-15T11:00:00Z' },
-      { id: 3, status: 'arrived', lastStatusChange: '2024-01-15T12:00:00Z' },
+      { id: 1, status: 'confirmed', lastStatusChange: '2023-02-15T10:00:00Z' },
+      { id: 2, status: 'confirmed', lastStatusChange: '2023-02-15T11:00:00Z' },
     ]
   },
   {
     id: 2,
-    name: "Herbstkampagne 2024",
-    startDate: "2024-09-15",
-    endDate: "2024-11-30",
+    name: "Frühsommer München",
+    startDate: "2023-05-07",
+    endDate: "2023-06-18",
     capacity: 12,
-    registeredFundraisers: 8,
-    accommodation: null,
-    vehicle: null,
-    notes: "Schwerpunkt auf Neukunden",
+    registeredFundraisers: 11,
+    accommodation: 1,
+    vehicle: 1,
+    notes: "Schwerpunkt Münchner Innenstadt",
     fundraisers: [
-      { id: 4, status: 'registered', lastStatusChange: '2024-01-15T13:00:00Z' },
-      { id: 5, status: 'confirmed', lastStatusChange: '2024-01-15T14:00:00Z' },
+      { id: 3, status: 'confirmed', lastStatusChange: '2023-04-20T10:00:00Z' },
     ]
   },
+  {
+    id: 3,
+    name: "Hamburg Hafenkampagne",
+    startDate: "2023-06-04",
+    endDate: "2023-07-16",
+    capacity: 8,
+    registeredFundraisers: 4,
+    accommodation: null,
+    vehicle: 1,
+    notes: "Fokus auf Hafengebiet und Touristen",
+    fundraisers: []
+  },
+  {
+    id: 4,
+    name: "Sommerkampagne Stuttgart",
+    startDate: "2023-07-23",
+    endDate: "2023-09-10",
+    capacity: 15,
+    registeredFundraisers: 12,
+    accommodation: 1,
+    vehicle: 1,
+    notes: "Großkampagne in der Stuttgarter Region",
+    fundraisers: []
+  },
+  {
+    id: 5,
+    name: "Herbstaktion Frankfurt",
+    startDate: "2023-09-24",
+    endDate: "2023-11-12",
+    capacity: 10,
+    registeredFundraisers: 9,
+    accommodation: 1,
+    vehicle: 1,
+    notes: "Banken- und Geschäftsviertel",
+    fundraisers: []
+  },
+  // 2024 Campaigns
+  {
+    id: 6,
+    name: "Winterkampagne Berlin",
+    startDate: "2024-01-07",
+    endDate: "2024-02-25",
+    capacity: 8,
+    registeredFundraisers: 7,
+    accommodation: 1,
+    vehicle: 1,
+    notes: "Fokus auf Indoor-Locations",
+    fundraisers: [
+      { id: 1, status: 'confirmed', lastStatusChange: '2023-12-15T10:00:00Z' },
+    ]
+  },
+  {
+    id: 7,
+    name: "Frühjahr Köln-Bonn",
+    startDate: "2024-02-18",
+    endDate: "2024-03-31",
+    capacity: 12,
+    registeredFundraisers: 6,
+    accommodation: null,
+    vehicle: 1,
+    notes: "Doppelregion mit Pendelverkehr",
+    fundraisers: []
+  },
+  {
+    id: 8,
+    name: "Dresden Frühling",
+    startDate: "2024-03-24",
+    endDate: "2024-05-12",
+    capacity: 10,
+    registeredFundraisers: 8,
+    accommodation: 1,
+    vehicle: 1,
+    notes: "Fokus auf Altstadt und Neustadt",
+    fundraisers: []
+  },
+  {
+    id: 9,
+    name: "Leipzig Kultursommer",
+    startDate: "2024-05-19",
+    endDate: "2024-07-07",
+    capacity: 15,
+    registeredFundraisers: 5,
+    accommodation: 1,
+    vehicle: 1,
+    notes: "Schwerpunkt auf Kulturveranstaltungen",
+    fundraisers: []
+  },
+  {
+    id: 10,
+    name: "Hannover Messe-Special",
+    startDate: "2024-06-02",
+    endDate: "2024-07-14",
+    capacity: 8,
+    registeredFundraisers: 3,
+    accommodation: null,
+    vehicle: null,
+    notes: "Koordiniert mit Messekalender",
+    fundraisers: []
+  },
+  {
+    id: 11,
+    name: "Nordsee-Kampagne",
+    startDate: "2024-07-21",
+    endDate: "2024-09-08",
+    capacity: 12,
+    registeredFundraisers: 10,
+    accommodation: 1,
+    vehicle: 1,
+    notes: "Touristische Hochsaison",
+    fundraisers: []
+  },
+  {
+    id: 12,
+    name: "Herbst München-Süd",
+    startDate: "2024-09-15",
+    endDate: "2024-11-03",
+    capacity: 10,
+    registeredFundraisers: 4,
+    accommodation: 1,
+    vehicle: 1,
+    notes: "Fokus auf südliche Stadtteile",
+    fundraisers: []
+  }
 ];
 
 // Time Units for TimeUnitSelector
