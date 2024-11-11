@@ -104,172 +104,103 @@ const CalendarView = ({ campaigns = [], onError }) => {
         }
         break;
       default:
-        // Default case - no action needed
         break;
     }
   };
 
   const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun',
+    'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+    'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
+  ];
+
+  const monthsShort = [
+    'Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun',
     'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'
   ];
 
-  const quarters = [
-    { label: `Q1 ${currentYear}`, months: [0, 1, 2] },
-    { label: `Q2 ${currentYear}`, months: [3, 4, 5] },
-    { label: `Q3 ${currentYear}`, months: [6, 7, 8] },
-    { label: `Q4 ${currentYear}`, months: [9, 10, 11] },
-  ];
-
-  const getWeekDays = (year, week) => {
-    const firstDayOfYear = new Date(year, 0, 1);
-    const daysToFirstMonday = (8 - firstDayOfYear.getDay()) % 7;
-    const firstMonday = new Date(year, 0, 1 + daysToFirstMonday);
-    const startDate = new Date(firstMonday);
-    startDate.setDate(startDate.getDate() + (week - 1) * 7);
-    
-    const days = [];
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(startDate);
-      date.setDate(date.getDate() + i);
-      days.push(date.getDate() + '. ' + months[date.getMonth()]);
-    }
-    return days;
-  };
-
   const getTimelineHeaders = () => {
-    const commonHeaderStyles = {
-      py: 1.5,
-      px: 2,
-      textAlign: 'center',
-      typography: 'subtitle2',
-      fontWeight: 500,
-      color: theme.palette.primary.contrastText,
-    };
-
-    const commonSubHeaderStyles = {
-      py: 1.5,
-      px: 2,
-      textAlign: 'center',
-      typography: 'body2',
-      color: theme.palette.text.secondary,
-      bgcolor: theme.palette.grey[50],
+    const headerStyles = {
+      display: 'flex',
       borderBottom: `1px solid ${theme.palette.divider}`,
+      bgcolor: theme.palette.primary.main,
+      color: theme.palette.primary.contrastText,
+      '& > div': {
+        py: 1.5,
+        px: 2,
+        textAlign: 'center',
+        typography: 'subtitle2',
+        fontWeight: 500,
+        flex: 1,
+        borderRight: `1px solid ${theme.palette.primary.dark}`,
+        '&:last-child': {
+          borderRight: 'none',
+        },
+      },
     };
 
     switch (timeUnit) {
       case 'year':
         return (
-          <>
-            <Box sx={{ display: 'flex', bgcolor: theme.palette.primary.main }}>
-              {quarters.map((quarter, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    ...commonHeaderStyles,
-                    flex: 1,
-                    borderRight: index < 3 ? `1px solid ${theme.palette.primary.dark}` : 'none',
-                  }}
-                >
-                  {quarter.label}
-                </Box>
-              ))}
-            </Box>
-            <Box sx={{ display: 'flex' }}>
-              {months.map((month, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    ...commonSubHeaderStyles,
-                    flex: 1,
-                    borderRight: index < 11 ? `1px solid ${theme.palette.divider}` : 'none',
-                  }}
-                >
-                  {month}
-                </Box>
-              ))}
-            </Box>
-          </>
-        );
-      
-      case 'quarter':
-        const quarterMonths = quarters[currentQuarter].months;
-        return (
-          <>
-            <Box sx={{ display: 'flex', bgcolor: theme.palette.primary.main }}>
-              <Box sx={{ ...commonHeaderStyles, flex: 1 }}>
-                {`${quarters[currentQuarter].label}`}
+          <Box sx={headerStyles}>
+            {months.map((month, index) => (
+              <Box key={index}>
+                {monthsShort[index]}
               </Box>
-            </Box>
-            <Box sx={{ display: 'flex' }}>
-              {quarterMonths.map((monthIndex) => (
-                <Box
-                  key={monthIndex}
-                  sx={{
-                    ...commonSubHeaderStyles,
-                    flex: 1,
-                    borderRight: monthIndex < quarterMonths[quarterMonths.length - 1] ? `1px solid ${theme.palette.divider}` : 'none',
-                  }}
-                >
-                  {months[monthIndex]}
-                </Box>
-              ))}
-            </Box>
-          </>
+            ))}
+          </Box>
         );
       
-      case 'month':
+      case 'quarter': {
+        const quarterMonths = [
+          currentQuarter * 3,
+          currentQuarter * 3 + 1,
+          currentQuarter * 3 + 2
+        ];
+        return (
+          <Box sx={headerStyles}>
+            {quarterMonths.map((monthIndex) => (
+              <Box key={monthIndex}>
+                {months[monthIndex]}
+              </Box>
+            ))}
+          </Box>
+        );
+      }
+      
+      case 'month': {
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const weeks = Math.ceil(daysInMonth / 7);
         return (
-          <>
-            <Box sx={{ display: 'flex', bgcolor: theme.palette.primary.main }}>
-              <Box sx={{ ...commonHeaderStyles, flex: 1 }}>
-                {`${months[currentMonth]} ${currentYear}`}
-              </Box>
-            </Box>
-            <Box sx={{ display: 'flex' }}>
-              {Array.from({ length: weeks }).map((_, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    ...commonSubHeaderStyles,
-                    flex: 1,
-                    borderRight: index < weeks - 1 ? `1px solid ${theme.palette.divider}` : 'none',
-                  }}
-                >
-                  {`KW ${Math.ceil((new Date(currentYear, currentMonth, index * 7 + 1).getTime() - new Date(currentYear, 0, 1).getTime()) / (7 * 24 * 60 * 60 * 1000))}`}
+          <Box sx={headerStyles}>
+            {Array.from({ length: weeks }).map((_, index) => {
+              const weekStart = index * 7 + 1;
+              const weekEnd = Math.min(weekStart + 6, daysInMonth);
+              return (
+                <Box key={index}>
+                  {`${weekStart}. - ${weekEnd}. ${months[currentMonth]}`}
                 </Box>
-              ))}
-            </Box>
-          </>
+              );
+            })}
+          </Box>
         );
+      }
       
-      case 'week':
-        const weekDays = getWeekDays(currentYear, currentWeek);
+      case 'week': {
+        const weekStart = new Date(currentYear, 0, 1 + (currentWeek - 1) * 7);
         return (
-          <>
-            <Box sx={{ display: 'flex', bgcolor: theme.palette.primary.main }}>
-              <Box sx={{ ...commonHeaderStyles, flex: 1 }}>
-                {`KW ${currentWeek}, ${currentYear}`}
-              </Box>
-            </Box>
-            <Box sx={{ display: 'flex' }}>
-              {weekDays.map((day, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    ...commonSubHeaderStyles,
-                    flex: 1,
-                    borderRight: index < 6 ? `1px solid ${theme.palette.divider}` : 'none',
-                  }}
-                >
-                  {day}
+          <Box sx={headerStyles}>
+            {Array.from({ length: 7 }).map((_, index) => {
+              const day = new Date(weekStart);
+              day.setDate(weekStart.getDate() + index);
+              return (
+                <Box key={index}>
+                  {`${day.getDate()}. ${monthsShort[day.getMonth()]}`}
                 </Box>
-              ))}
-            </Box>
-          </>
+              );
+            })}
+          </Box>
         );
+      }
       
       default:
         return null;
@@ -399,12 +330,14 @@ const CalendarView = ({ campaigns = [], onError }) => {
       position: 'relative',
     }}>
       <Box sx={{ 
-        position: 'absolute',
+        position: 'fixed',
         left: 0,
         top: 0,
         bottom: 0,
         width: 280,
         zIndex: 2,
+        bgcolor: theme.palette.background.paper,
+        borderRight: `1px solid ${theme.palette.divider}`,
       }}>
         <CampaignSidebar 
           campaigns={sortedCampaigns}
@@ -420,17 +353,25 @@ const CalendarView = ({ campaigns = [], onError }) => {
         pl: 3,
         overflow: 'hidden',
       }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          mb: 2,
+          mt: 1,
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <Typography 
               variant="h4" 
               sx={{ 
                 color: theme.palette.text.primary,
                 fontWeight: 500,
-                mr: 4,
               }}
             >
-              {currentYear} Timeline
+              {timeUnit === 'year' ? currentYear :
+               timeUnit === 'quarter' ? `Q${currentQuarter + 1} ${currentYear}` :
+               timeUnit === 'month' ? `${months[currentMonth]} ${currentYear}` :
+               `KW ${currentWeek}, ${currentYear}`}
             </Typography>
             <TimeUnitSelector value={timeUnit} onChange={handleTimeUnitChange} />
           </Box>
@@ -466,9 +407,7 @@ const CalendarView = ({ campaigns = [], onError }) => {
           }}
         >
           {/* Headers */}
-          <Box>
-            {getTimelineHeaders()}
-          </Box>
+          {getTimelineHeaders()}
 
           {/* Timeline Content */}
           <Box 
@@ -490,7 +429,7 @@ const CalendarView = ({ campaigns = [], onError }) => {
               minWidth: '100%',
               width: 'fit-content',
               px: 4,
-              pt: 3,
+              pt: 2,
             }}>
               {/* Grid Lines */}
               <Box 
@@ -545,12 +484,12 @@ const CalendarView = ({ campaigns = [], onError }) => {
                           sx={{
                             position: 'absolute',
                             ...position,
-                            top: index * 48,
-                            height: 40,
+                            top: index * 42,
+                            height: 36,
                             display: 'flex',
                             alignItems: 'center',
                             px: 2,
-                            borderRadius: '20px',
+                            borderRadius: '18px',
                             bgcolor: isSelected ? theme.palette.primary.dark : theme.palette.primary.main,
                             color: theme.palette.primary.contrastText,
                             boxShadow: isSelected ? theme.shadows[4] : theme.shadows[2],
