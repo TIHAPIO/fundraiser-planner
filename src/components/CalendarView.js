@@ -39,6 +39,11 @@ const CalendarView = ({ campaigns = [], onError }) => {
     return Math.ceil(days / 7);
   });
 
+  // Sort campaigns by start date
+  const sortedCampaigns = [...campaigns].sort((a, b) => 
+    new Date(a.startDate) - new Date(b.startDate)
+  );
+
   const navigateToToday = () => {
     const today = new Date();
     setCurrentYear(today.getFullYear());
@@ -310,7 +315,7 @@ const CalendarView = ({ campaigns = [], onError }) => {
       height: '100%',
     }}>
       <CampaignSidebar 
-        campaigns={campaigns}
+        campaigns={sortedCampaigns}
         onCampaignClick={handleCampaignClick}
       />
 
@@ -415,7 +420,7 @@ const CalendarView = ({ campaigns = [], onError }) => {
               </Box>
 
               {/* Campaign Items */}
-              {campaigns
+              {sortedCampaigns
                 .filter(validateCampaign)
                 .map((campaign, index) => {
                   const position = getCampaignPosition(campaign.startDate, campaign.endDate);
@@ -444,7 +449,7 @@ const CalendarView = ({ campaigns = [], onError }) => {
                           sx={{
                             position: 'absolute',
                             ...position,
-                            top: (index + 4) * 44 + 8,
+                            top: (index + 1) * 44,
                             height: 36,
                             display: 'flex',
                             alignItems: 'center',
