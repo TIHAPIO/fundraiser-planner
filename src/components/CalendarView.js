@@ -29,14 +29,10 @@ import CampaignDetailsDialog from './CampaignDetailsDialog';
 import CampaignSidebar from './CampaignSidebar';
 import TimeUnitSelector from './TimeUnitSelector';
 
-{/* Rest of the file remains unchanged */}
-const CAMPAIGN_SIDEBAR_WIDTH = 280;
-const DRAWER_WIDTH = 240;
-
 const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
   const theme = useTheme();
   const timelineRef = useRef(null);
-  const [timeUnit, setTimeUnit] = useState('year');
+  const [timeUnit, setTimeUnit] = useState('week');
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [currentYear, setCurrentYear] = useState(() => {
@@ -131,27 +127,35 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
   const getTimelineHeaders = () => {
     const headerStyles = {
       display: 'flex',
-      borderBottom: `1px solid ${theme.palette.divider}`,
-      bgcolor: theme.palette.primary.main,
-      color: theme.palette.primary.contrastText,
+      borderBottom: `2px solid ${theme.palette.divider}`,
+      bgcolor: theme.palette.background.paper,
+      color: theme.palette.text.primary,
       position: 'sticky',
       top: 0,
       zIndex: 3,
+      boxShadow: theme.shadows[2],
       '& > div': {
-        py: 1.5,
+        py: 2,
         px: 2,
         textAlign: 'center',
-        typography: 'subtitle2',
+        typography: 'subtitle1',
         fontWeight: 600,
         flex: 1,
-        borderRight: `1px solid ${theme.palette.primary.dark}`,
+        borderRight: `1px solid ${theme.palette.divider}`,
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
+        gap: 0.5,
         '&:last-child': {
           borderRight: 'none',
         },
       },
+    };
+
+    const getDayLabel = (date) => {
+      const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+      return days[date.getDay()];
     };
 
     switch (timeUnit) {
@@ -193,7 +197,12 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
               const weekEnd = Math.min(weekStart + 6, daysInMonth);
               return (
                 <Box key={index}>
-                  {`${weekStart}. - ${weekEnd}. ${months[currentMonth]}`}
+                  <Typography variant="caption" color="text.secondary">
+                    KW {Math.ceil(weekStart / 7)}
+                  </Typography>
+                  <Typography variant="subtitle2">
+                    {`${weekStart}. - ${weekEnd}.`}
+                  </Typography>
                 </Box>
               );
             })}
@@ -208,9 +217,39 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
             {Array.from({ length: 7 }).map((_, index) => {
               const day = new Date(weekStart);
               day.setDate(weekStart.getDate() + index);
+              const isToday = new Date().toDateString() === day.toDateString();
               return (
-                <Box key={index}>
-                  {`${day.getDate()}. ${monthsShort[day.getMonth()]}`}
+                <Box 
+                  key={index}
+                  sx={{
+                    position: 'relative',
+                    '&::after': isToday ? {
+                      content: '""',
+                      position: 'absolute',
+                      bottom: 0,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: '24px',
+                      height: '3px',
+                      bgcolor: theme.palette.primary.main,
+                      borderRadius: '2px',
+                    } : {},
+                  }}
+                >
+                  <Typography 
+                    variant="caption" 
+                    color={isToday ? 'primary' : 'text.secondary'}
+                    sx={{ fontWeight: isToday ? 600 : 400 }}
+                  >
+                    {getDayLabel(day)}
+                  </Typography>
+                  <Typography 
+                    variant="subtitle2"
+                    color={isToday ? 'primary' : 'text.primary'}
+                    sx={{ fontWeight: isToday ? 600 : 500 }}
+                  >
+                    {`${day.getDate()}. ${monthsShort[day.getMonth()]}`}
+                  </Typography>
                 </Box>
               );
             })}
@@ -307,8 +346,10 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
 
   const getFundraiserStatusColor = (campaign) => {
     const percentage = (campaign.registeredFundraisers / campaign.capacity) * 100;
-    if (percentage >= 80) return theme.palette.success.main;
-    return theme.palette.error.main;
+    if (percentage >= 90) return theme.palette.error.main; // Überbelegung
+    if (percentage >= 80) return theme.palette.success.main; // Gut belegt
+    if (percentage >= 50) return theme.palette.warning.main; // Mittelmäßig belegt
+    return theme.palette.error.main; // Unterbelegung
   };
 
   const getResourceWarnings = (campaign) => {
@@ -464,7 +505,7 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
               minHeight: 400,
               minWidth: '100%',
               width: 'fit-content',
-              px: 4,
+              px: 2,
               pt: 2,
               pb: 4,
             }}>
@@ -485,7 +526,7 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
                     key={index}
                     sx={{
                       flex: 1,
-                      borderRight: index < array.length - 1 ? `2px solid ${theme.palette.divider}` : 'none',
+                      borderRight: index < array.length - 1 ? `1px solid ${theme.palette.divider}` : 'none',
                       bgcolor: index % 2 === 0 ? 'rgba(0, 0, 0, 0.02)' : 'transparent',
                     }}
                   />
@@ -500,36 +541,57 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
                   const statusColor = getFundraiserStatusColor(campaign);
                   const warnings = getResourceWarnings(campaign);
                   const isSelected = selectedCampaign?.id === campaign.id;
+                  const hasWarnings = warnings.length > 0;
+                  const percentage = (campaign.registeredFundraisers / campaign.capacity) * 100;
 
                   return (
-                    <Fade key={campaign.id} in={true} timeout={500} style={{ transitionDelay: `${index * 100}ms` }}>
+                    <Fade key={campaign.id} in={true} timeout={300} style={{ transitionDelay: `${index * 50}ms` }}>
                       <Tooltip
                         title={
-                          <Box>
-                            <Typography variant="subtitle2">{campaign.name}</Typography>
-                            <Typography variant="body2">
+                          <Box sx={{ p: 0.5 }}>
+                            <Typography variant="subtitle2" sx={{ mb: 1 }}>{campaign.name}</Typography>
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                color: percentage >= 90 ? theme.palette.error.light :
+                                       percentage >= 80 ? theme.palette.success.light :
+                                       theme.palette.warning.light
+                              }}
+                            >
                               {campaign.registeredFundraisers} von {campaign.capacity} Plätzen belegt
                             </Typography>
                             {warnings.map((warning, idx) => (
-                              <Typography key={idx} variant="body2" color="error">
-                                • {warning}
+                              <Typography 
+                                key={idx} 
+                                variant="body2" 
+                                sx={{ 
+                                  color: theme.palette.error.light,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 0.5,
+                                  mt: 0.5
+                                }}
+                              >
+                                <WarningIcon sx={{ fontSize: 16 }} />
+                                {warning}
                               </Typography>
                             ))}
                           </Box>
                         }
+                        placement="top"
                       >
                         <Box
                           sx={{
                             position: 'absolute',
                             ...position,
-                            top: index * 48 + 8,
-                            height: 40,
+                            top: index * 46 + 4,
+                            height: 38,
                             display: 'flex',
                             alignItems: 'center',
-                            px: 2,
-                            borderRadius: '20px',
-                            bgcolor: isSelected ? theme.palette.primary.dark : theme.palette.primary.main,
-                            color: theme.palette.primary.contrastText,
+                            px: 1.5,
+                            borderRadius: '19px',
+                            bgcolor: hasWarnings ? theme.palette.error.dark : theme.palette.primary.main,
+                            color: '#fff',
                             boxShadow: isSelected ? theme.shadows[8] : theme.shadows[2],
                             transition: theme.transitions.create(
                               ['transform', 'box-shadow', 'background-color'],
@@ -544,9 +606,9 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
                             border: `2px solid ${statusColor}`,
                             zIndex: isSelected ? 3 : 2,
                             '&:hover': {
-                              transform: 'translateY(-2px) scale(1.02)',
-                              boxShadow: theme.shadows[12],
-                              bgcolor: theme.palette.primary.dark,
+                              transform: 'translateY(-1px)',
+                              boxShadow: theme.shadows[8],
+                              bgcolor: hasWarnings ? theme.palette.error.main : theme.palette.primary.dark,
                             },
                           }}
                           onClick={() => handleCampaignClick(campaign)}
@@ -559,24 +621,38 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
                               flex: 1,
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
+                              color: hasWarnings ? '#fff' : 'inherit',
                             }}
                           >
                             {campaign.name}
                           </Typography>
-                          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                          <Box sx={{ 
+                            display: 'flex', 
+                            gap: 0.75,
+                            alignItems: 'center',
+                            '& .MuiSvgIcon-root': {
+                              fontSize: 18,
+                              color: hasWarnings ? '#fff' : 'inherit',
+                            }
+                          }}>
                             {warnings.length > 0 && (
                               <WarningIcon 
                                 sx={{ 
-                                  color: theme.palette.warning.main,
-                                  fontSize: 20,
+                                  color: `${theme.palette.warning.light} !important`,
+                                  animation: 'pulse 2s infinite',
+                                  '@keyframes pulse': {
+                                    '0%': { opacity: 1 },
+                                    '50%': { opacity: 0.6 },
+                                    '100%': { opacity: 1 },
+                                  },
                                 }}
                               />
                             )}
                             {campaign.vehicle ? (
-                              <DirectionsCarIcon sx={{ fontSize: 20 }} />
+                              <DirectionsCarIcon />
                             ) : null}
                             {campaign.accommodation ? (
-                              <HotelIcon sx={{ fontSize: 20 }} />
+                              <HotelIcon />
                             ) : null}
                             <Badge
                               badgeContent={campaign.registeredFundraisers}
@@ -587,10 +663,12 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
                                   bgcolor: statusColor,
                                   color: '#fff',
                                   fontWeight: 600,
+                                  minWidth: 20,
+                                  height: 20,
                                 },
                               }}
                             >
-                              <GroupIcon sx={{ fontSize: 20 }} />
+                              <GroupIcon />
                             </Badge>
                           </Box>
                         </Box>
