@@ -41,20 +41,18 @@ import getTheme from './theme';
 import ErrorBoundary from './ErrorBoundary';
 import { mockCampaigns } from './data/mockData';
 
-// Lazy load components
 const CalendarView = React.lazy(() => import('./components/CalendarView'));
 const AdminChangeRequests = React.lazy(() => import('./components/AdminChangeRequests'));
 
 const DRAWER_WIDTH = 240;
+const COLLAPSED_DRAWER_WIDTH = 64; // 8 spacing units
 
-// Loading component
 const LoadingFallback = () => (
   <Backdrop open={true} sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}>
     <CircularProgress color="inherit" />
   </Backdrop>
 );
 
-// Keyboard shortcuts help dialog
 const ShortcutsDialog = ({ open, onClose }) => (
   <Dialog open={open} onClose={onClose}>
     <DialogTitle>Keyboard Shortcuts</DialogTitle>
@@ -95,12 +93,10 @@ function App() {
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [filteredCampaigns, setFilteredCampaigns] = useState(mockCampaigns);
 
-  // Save theme preference
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
   }, [darkMode]);
 
-  // Filter campaigns based on search query
   useEffect(() => {
     if (searchQuery) {
       const filtered = mockCampaigns.filter(campaign =>
@@ -112,7 +108,6 @@ function App() {
     }
   }, [searchQuery]);
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyboard = (e) => {
       if (e.altKey) {
@@ -168,8 +163,9 @@ function App() {
     { text: 'Admin', icon: <AdminPanelSettingsIcon />, value: 'Admin' },
   ];
 
-  // Create theme based on mode
   const theme = React.useMemo(() => getTheme(darkMode ? 'dark' : 'light'), [darkMode]);
+
+  const drawerWidth = drawerOpen ? DRAWER_WIDTH : COLLAPSED_DRAWER_WIDTH;
 
   return (
     <ThemeProvider theme={theme}>
@@ -178,22 +174,24 @@ function App() {
           <Box sx={{ display: 'flex', minHeight: '100vh' }}>
             <CssBaseline />
             
-            {/* App Bar for small screens */}
+            {/* Mobile App Bar */}
             <Box
               component="nav"
               sx={{
                 position: 'fixed',
                 top: 0,
                 left: 0,
+                right: 0,
                 zIndex: theme.zIndex.drawer + 2,
                 display: { sm: 'none' },
-                width: '100%',
                 bgcolor: 'background.paper',
                 borderBottom: '1px solid',
                 borderColor: 'divider',
+                px: 1,
+                py: 0.5,
               }}
             >
-              <IconButton onClick={toggleDrawer} sx={{ m: 1 }}>
+              <IconButton onClick={toggleDrawer} edge="start">
                 <MenuIcon />
               </IconButton>
             </Box>
@@ -203,15 +201,15 @@ function App() {
               variant="permanent"
               open={drawerOpen}
               sx={{
-                width: drawerOpen ? DRAWER_WIDTH : theme.spacing(7),
+                width: drawerWidth,
                 flexShrink: 0,
                 '& .MuiDrawer-paper': {
-                  width: drawerOpen ? DRAWER_WIDTH : theme.spacing(7),
+                  width: drawerWidth,
                   boxSizing: 'border-box',
                   overflowX: 'hidden',
-                  transition: theme.transitions.create('width', {
+                  transition: theme.transitions.create(['width', 'margin'], {
                     easing: theme.transitions.easing.sharp,
-                    duration: theme.transitions.duration.enteringScreen,
+                    duration: theme.transitions.duration.standard,
                   }),
                 },
               }}
@@ -221,9 +219,10 @@ function App() {
                 alignItems: 'center', 
                 justifyContent: drawerOpen ? 'space-between' : 'center',
                 p: 2,
+                minHeight: 64, // Consistent header height
               }}>
                 {drawerOpen && (
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                  <Typography variant="h6" noWrap sx={{ fontWeight: 600 }}>
                     Fundr Studio
                   </Typography>
                 )}
@@ -232,7 +231,7 @@ function App() {
                 </IconButton>
               </Box>
 
-              <List>
+              <List component="nav" sx={{ px: 1 }}>
                 {menuItems.map((item) => (
                   <ListItem key={item.text} disablePadding>
                     <ListItemButton
@@ -241,7 +240,8 @@ function App() {
                       sx={{
                         minHeight: 48,
                         justifyContent: drawerOpen ? 'initial' : 'center',
-                        px: 2.5,
+                        px: 2,
+                        borderRadius: 1,
                       }}
                     >
                       <ListItemIcon
@@ -264,7 +264,8 @@ function App() {
                     sx={{
                       minHeight: 48,
                       justifyContent: drawerOpen ? 'initial' : 'center',
-                      px: 2.5,
+                      px: 2,
+                      borderRadius: 1,
                     }}
                   >
                     <ListItemIcon
@@ -288,7 +289,8 @@ function App() {
                     sx={{
                       minHeight: 48,
                       justifyContent: drawerOpen ? 'initial' : 'center',
-                      px: 2.5,
+                      px: 2,
+                      borderRadius: 1,
                     }}
                   >
                     <ListItemIcon
@@ -310,7 +312,8 @@ function App() {
                     sx={{
                       minHeight: 48,
                       justifyContent: drawerOpen ? 'initial' : 'center',
-                      px: 2.5,
+                      px: 2,
+                      borderRadius: 1,
                     }}
                   >
                     <ListItemIcon
@@ -337,20 +340,20 @@ function App() {
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
-                width: { sm: `calc(100% - ${drawerOpen ? DRAWER_WIDTH : theme.spacing(7)}px)` },
-                ml: { sm: `${drawerOpen ? DRAWER_WIDTH : theme.spacing(7)}px` },
+                width: `calc(100% - ${drawerWidth}px)`,
+                ml: `${drawerWidth}px`,
                 mt: { xs: '48px', sm: 0 },
                 transition: theme.transitions.create(['width', 'margin'], {
                   easing: theme.transitions.easing.sharp,
-                  duration: theme.transitions.duration.enteringScreen,
+                  duration: theme.transitions.duration.standard,
                 }),
               }}
             >
               <Container 
                 maxWidth={false} 
                 sx={{ 
-                  py: 1.5,
-                  px: { xs: 1, sm: 2 },
+                  py: 2,
+                  px: { xs: 2, sm: 3 },
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
@@ -358,7 +361,7 @@ function App() {
                 }}
               >
                 {/* Search Bar */}
-                <Box sx={{ mb: 1.5 }}>
+                <Box sx={{ mb: 2 }}>
                   <TextField
                     className="search-input"
                     fullWidth

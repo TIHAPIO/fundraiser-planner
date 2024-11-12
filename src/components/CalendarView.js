@@ -1,26 +1,35 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+// React imports
+import React from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+
+// MUI Components
 import {
-  Box,
-  Paper,
-  Typography,
-  Fade,
-  useTheme,
-  Tooltip,
   Badge,
-  IconButton,
+  Box,
   Button,
+  Fade,
+  IconButton,
+  Paper,
+  Tooltip,
+  Typography,
+  useTheme,
 } from '@mui/material';
-import TimeUnitSelector from './TimeUnitSelector';
-import CampaignSidebar from './CampaignSidebar';
-import CampaignDetailsDialog from './CampaignDetailsDialog';
-import GroupIcon from '@mui/icons-material/Group';
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import HotelIcon from '@mui/icons-material/Hotel';
-import WarningIcon from '@mui/icons-material/Warning';
+
+// MUI Icons
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import GroupIcon from '@mui/icons-material/Group';
+import HotelIcon from '@mui/icons-material/Hotel';
+import WarningIcon from '@mui/icons-material/Warning';
 
+// Local components
+import CampaignDetailsDialog from './CampaignDetailsDialog';
+import CampaignSidebar from './CampaignSidebar';
+import TimeUnitSelector from './TimeUnitSelector';
+
+{/* Rest of the file remains unchanged */}
 const CAMPAIGN_SIDEBAR_WIDTH = 280;
 const DRAWER_WIDTH = 240;
 
@@ -43,14 +52,12 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
     return Math.ceil(days / 7);
   });
 
-  // Reset scroll position when dialog closes
   useEffect(() => {
     if (!detailsOpen && timelineRef.current) {
       timelineRef.current.scrollLeft = 0;
     }
   }, [detailsOpen]);
 
-  // Sort campaigns by start date
   const sortedCampaigns = [...campaigns].sort((a, b) => 
     new Date(a.startDate) - new Date(b.startDate)
   );
@@ -127,14 +134,20 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
       borderBottom: `1px solid ${theme.palette.divider}`,
       bgcolor: theme.palette.primary.main,
       color: theme.palette.primary.contrastText,
+      position: 'sticky',
+      top: 0,
+      zIndex: 3,
       '& > div': {
         py: 1.5,
         px: 2,
         textAlign: 'center',
         typography: 'subtitle2',
-        fontWeight: 500,
+        fontWeight: 600,
         flex: 1,
         borderRight: `1px solid ${theme.palette.primary.dark}`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         '&:last-child': {
           borderRight: 'none',
         },
@@ -328,61 +341,35 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
 
   return (
     <Box sx={{ 
-      display: 'flex', 
+      display: 'flex',
       height: '100%',
+      width: '100%',
       position: 'relative',
-      minHeight: 0,
     }}>
-      <Box sx={{ 
-        width: CAMPAIGN_SIDEBAR_WIDTH,
-        position: 'fixed',
-        top: 0,
-        bottom: 0,
-        left: drawerOpen ? DRAWER_WIDTH : theme.spacing(7),
-        bgcolor: theme.palette.background.paper,
-        borderRight: `1px solid ${theme.palette.divider}`,
-        transition: theme.transitions.create('left', {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.enteringScreen,
-        }),
-        zIndex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'auto',
-      }}>
-        <CampaignSidebar 
-          campaigns={sortedCampaigns}
-          onCampaignClick={handleCampaignClick}
-        />
-      </Box>
-
+      {/* Main Content */}
       <Box sx={{ 
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        marginLeft: `calc(${CAMPAIGN_SIDEBAR_WIDTH}px + ${drawerOpen ? DRAWER_WIDTH : theme.spacing(7)}px)`,
-        paddingRight: 3,
-        paddingLeft: 3,
         minWidth: 0,
-        overflow: 'hidden',
-        transition: theme.transitions.create('margin-left', {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.enteringScreen,
-        }),
+        height: '100%',
       }}>
+        {/* Header */}
         <Box sx={{ 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'space-between',
           mb: 2,
-          mt: 1,
+          mt: 2,
+          py: 1,
         }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <Typography 
               variant="h4" 
               sx={{ 
                 color: theme.palette.text.primary,
-                fontWeight: 500,
+                fontWeight: 600,
+                letterSpacing: '-0.5px',
               }}
             >
               {timeUnit === 'year' ? currentYear :
@@ -393,23 +380,54 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
             <TimeUnitSelector value={timeUnit} onChange={handleTimeUnitChange} />
           </Box>
           
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Button
-              variant="outlined"
+              variant="contained"
               onClick={navigateToToday}
-              sx={{ minWidth: 100 }}
+              sx={{ 
+                minWidth: 100,
+                bgcolor: theme.palette.primary.main,
+                '&:hover': {
+                  bgcolor: theme.palette.primary.dark,
+                },
+              }}
             >
               Heute
             </Button>
-            <IconButton onClick={() => handleNavigate('prev')}>
-              <ChevronLeftIcon />
-            </IconButton>
-            <IconButton onClick={() => handleNavigate('next')}>
-              <ChevronRightIcon />
-            </IconButton>
+            <Box sx={{ 
+              display: 'flex',
+              gap: 0.5,
+              bgcolor: theme.palette.background.paper,
+              borderRadius: 1,
+              p: 0.5,
+            }}>
+              <IconButton 
+                onClick={() => handleNavigate('prev')}
+                sx={{ 
+                  color: theme.palette.text.primary,
+                  '&:hover': {
+                    bgcolor: theme.palette.action.hover,
+                  },
+                }}
+              >
+                <ChevronLeftIcon />
+              </IconButton>
+              <IconButton 
+                onClick={() => handleNavigate('next')}
+                sx={{ 
+                  color: theme.palette.text.primary,
+                  '&:hover': {
+                    bgcolor: theme.palette.action.hover,
+                  },
+                }}
+              >
+                <ChevronRightIcon />
+              </IconButton>
+            </Box>
           </Box>
         </Box>
         
+        {/* Timeline */}
         <Paper 
           elevation={0} 
           sx={{ 
@@ -421,6 +439,7 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
             minHeight: 400,
             position: 'relative',
             overflow: 'hidden',
+            bgcolor: theme.palette.background.paper,
           }}
         >
           {/* Headers */}
@@ -447,6 +466,7 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
               width: 'fit-content',
               px: 4,
               pt: 2,
+              pb: 4,
             }}>
               {/* Grid Lines */}
               <Box 
@@ -465,7 +485,8 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
                     key={index}
                     sx={{
                       flex: 1,
-                      borderRight: index < array.length - 1 ? `1px solid ${theme.palette.divider}` : 'none',
+                      borderRight: index < array.length - 1 ? `2px solid ${theme.palette.divider}` : 'none',
+                      bgcolor: index % 2 === 0 ? 'rgba(0, 0, 0, 0.02)' : 'transparent',
                     }}
                   />
                 ))}
@@ -501,16 +522,19 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
                           sx={{
                             position: 'absolute',
                             ...position,
-                            top: index * 42,
-                            height: 36,
+                            top: index * 48 + 8,
+                            height: 40,
                             display: 'flex',
                             alignItems: 'center',
                             px: 2,
-                            borderRadius: '18px',
+                            borderRadius: '20px',
                             bgcolor: isSelected ? theme.palette.primary.dark : theme.palette.primary.main,
                             color: theme.palette.primary.contrastText,
-                            boxShadow: isSelected ? theme.shadows[4] : theme.shadows[2],
-                            transition: theme.transitions.create(['transform', 'box-shadow', 'background-color']),
+                            boxShadow: isSelected ? theme.shadows[8] : theme.shadows[2],
+                            transition: theme.transitions.create(
+                              ['transform', 'box-shadow', 'background-color'],
+                              { duration: 200 }
+                            ),
                             cursor: 'pointer',
                             typography: 'body2',
                             fontWeight: 500,
@@ -518,10 +542,11 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             border: `2px solid ${statusColor}`,
-                            zIndex: 2,
+                            zIndex: isSelected ? 3 : 2,
                             '&:hover': {
-                              transform: 'translateY(-2px)',
-                              boxShadow: theme.shadows[4],
+                              transform: 'translateY(-2px) scale(1.02)',
+                              boxShadow: theme.shadows[12],
+                              bgcolor: theme.palette.primary.dark,
                             },
                           }}
                           onClick={() => handleCampaignClick(campaign)}
@@ -529,7 +554,7 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
                           <Typography 
                             variant="body2" 
                             sx={{ 
-                              fontWeight: 500,
+                              fontWeight: 600,
                               mr: 1,
                               flex: 1,
                               overflow: 'hidden',
@@ -561,10 +586,11 @@ const CalendarView = ({ campaigns = [], onError, drawerOpen }) => {
                                 '& .MuiBadge-badge': {
                                   bgcolor: statusColor,
                                   color: '#fff',
+                                  fontWeight: 600,
                                 },
                               }}
                             >
-                              <GroupIcon fontSize="small" />
+                              <GroupIcon sx={{ fontSize: 20 }} />
                             </Badge>
                           </Box>
                         </Box>
